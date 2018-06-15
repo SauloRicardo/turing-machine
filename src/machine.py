@@ -17,7 +17,11 @@ class Machine(object):
 
     @property
     def keep_run(self):
-        return not self.__complete_compute and not self.__stop_breakpoint
+        return not self.__complete_compute
+
+    @property
+    def breakpoint(self):
+        return self.__stop_breakpoint
 
     @property
     def state(self):
@@ -59,7 +63,17 @@ class Machine(object):
     def load_word(self, word):
         self.__tape[self.__tape_index:len(word)] = word
 
+    def __add_tape(self):
+        if self.__tape_index == 50 or self.__tape_index == len(self.__tape)-50:
+            for i in range(250):
+                self.__tape.insert(0, '_')
+                self.__tape_index += 1
+
+            for i in range(250):
+                self.__tape.append('_')
+
     def step(self):
+        self.__add_tape()
         char_head = self.__tape[self.__tape_index]
         this_state = self.__state
         block = self.__stack[-1][0]
@@ -69,12 +83,21 @@ class Machine(object):
             if this_state in block.commands:
                 possible_transitions = block.commands[this_state]
 
-                possible_transitions.sort(key=lambda trans: trans[0])
-                possible_transitions.reverse()
+                # código para colocar a transição com asterisco sempre no final
+                transition_ok = []
+                transition_with_asterisk = None
+                for i in possible_transitions:
+                    if i[0] == "*":
+                        transition_with_asterisk = i
+                    else:
+                        transition_ok.append(i)
+
+                if transition_with_asterisk is not None:
+                    transition_ok.append(transition_with_asterisk)
 
                 compute = False
 
-                for transition in possible_transitions:
+                for transition in transition_ok:
                     if transition[-1]:
                         self.__stop_breakpoint = True
 
@@ -137,21 +160,3 @@ class Machine(object):
                     raise Exception(Utils.Colors.FAIL + "Not transition found" + Utils.Colors.ENDC)
             else:
                 raise Exception(Utils.Colors.FAIL + "State %s not exists" % (this_state, ) + Utils.Colors.ENDC)
-
-
-if __name__ == '__main__':
-    a = Machine()
-
-    try:
-        a.load_code("../palindromo.MT")
-
-        word_input = input("Digite a palavra de entrada: ")
-        a.load_word(word_input)
-
-        print(a.output)
-        while a.keep_run:
-                a.step()
-                print(a.output)
-
-    except Exception as err:
-        print(err)

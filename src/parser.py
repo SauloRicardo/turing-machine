@@ -29,11 +29,11 @@ class Parser(object):
         new_state.setDefaultWhitespaceChars(" \t")
         new_state.callDuringTry = True
 
-        this_symbol = (pp.Word(pp.alphanums) ^ pp.Literal("_") ^ pp.Literal("*"))
+        this_symbol = (pp.Word(pp.printables) ^ pp.Literal("_") ^ pp.Literal("*"))
         this_symbol.setDefaultWhitespaceChars(" \t")
         this_symbol.callDuringTry = True
 
-        new_symbol = (pp.Word(pp.alphanums) ^ pp.Literal("_") ^ pp.Literal("*"))
+        new_symbol = (pp.Word(pp.printables) ^ pp.Literal("_") ^ pp.Literal("*"))
         new_symbol.setDefaultWhitespaceChars(" \t")
         new_symbol.callDuringTry = True
 
