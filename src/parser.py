@@ -17,7 +17,7 @@ class Parser(object):
         NL.setDefaultWhitespaceChars(" \t")
         NL.callDuringTry = True
 
-        identifier = pp.Word(pp.alphas)
+        identifier = pp.Word(pp.alphas+"_", pp.alphanums+"_")
         identifier.setDefaultWhitespaceChars(" \t")
         identifier.callDuringTry = True
 
@@ -136,10 +136,3 @@ class Parser(object):
             error = str(err)
             pos = error.find("(line:")
             raise Exception(Utils.Colors.FAIL + "Error in "+error[pos:]+" -- File syntax error" + Utils.Colors.ENDC)
-
-
-if __name__ == '__main__':
-    parser = Parser()
-
-    res = parser.parse_file("palindromo.MT")
-    print(res)

@@ -100,6 +100,8 @@ class Machine(object):
                 for transition in transition_ok:
                     if transition[-1]:
                         self.__stop_breakpoint = True
+                    else:
+                        self.__stop_breakpoint = False
 
                     if transition[0] == char_head:
                         if transition[1] == "*":
@@ -120,14 +122,24 @@ class Machine(object):
                             self.__state = self.__stack[-1][1]
                             self.__stack.pop()
                         else:
-                            self.__state = transition[3]
+                            if transition[3] in block.commands:
+                                self.__state = transition[3]
+                            else:
+                                transition_str = "%d %c -- %c %c %d" % (this_state, transition[0], transition[1],
+                                                                        transition[2], transition[3])
+                                message = Utils.Colors.FAIL + "In the '%s' block there is no state '%d' used in the " \
+                                                              "transition '%s'" % (block.name, this_state,
+                                                                                   transition_str) + Utils.Colors.ENDC
+                                raise Exception(message)
 
                         compute = True
                         break
                     elif transition[0] in self.__code:
-                        new_state = self.__code[transition[0]]
-                        self.__stack.append((new_state, transition[1]))
-                        self.__state = new_state.initial_state
+                        # TODO: Melhor saída de erro no caso do estado inicial passado na criacao do bloco nao existir
+                        # TODO: Olhar se o estado de retorno existe no bloco que chamou outro bloco
+                        next_block = self.__code[transition[0]]
+                        self.__stack.append((next_block, transition[1]))
+                        self.__state = next_block.initial_state
                         compute = True
                         break
                     elif transition[0] == "*":
@@ -152,11 +164,21 @@ class Machine(object):
                                 self.__state = self.__stack[-1][1]
                             self.__stack.pop()
                         else:
-                            self.__state = transition[3]
+                            if transition[3] in block.commands:
+                                self.__state = transition[3]
+                            else:
+                                transition_str = "%d %c -- %c %c %d" % (this_state, transition[0], transition[1],
+                                                                        transition[2], transition[3])
+                                message = Utils.Colors.FAIL + "In the '%s' block there is no state '%d' used in the " \
+                                                              "transition '%s'" % (block.name, this_state,
+                                                                                   transition_str) + Utils.Colors.ENDC
+                                raise Exception(message)
 
                         compute = True
                         break
                 if not compute:
-                    raise Exception(Utils.Colors.FAIL + "Not transition found" + Utils.Colors.ENDC)
+                    message = Utils.Colors.FAIL + "There is no transition from state '%d' with the head in '%c'." % \
+                              (this_state, char_head) + Utils.Colors.ENDC
+                    raise Exception(message)
             else:
                 raise Exception(Utils.Colors.FAIL + "State %s not exists" % (this_state, ) + Utils.Colors.ENDC)
