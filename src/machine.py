@@ -135,13 +135,27 @@ class Machine(object):
                         compute = True
                         break
                     elif transition[0] in self.__code:
-                        # TODO: Melhor saída de erro no caso do estado inicial passado na criacao do bloco nao existir
-                        # TODO: Olhar se o estado de retorno existe no bloco que chamou outro bloco
-                        next_block = self.__code[transition[0]]
-                        self.__stack.append((next_block, transition[1]))
-                        self.__state = next_block.initial_state
-                        compute = True
-                        break
+                        if transition[0] in self.__code:
+                            next_block = self.__code[transition[0]]
+                            if next_block.initial_state in next_block.commands:
+                                if transition[1] in block.commands:
+                                    self.__stack.append((next_block, transition[1]))
+                                    self.__state = next_block.initial_state
+                                    compute = True
+                                    break
+                                else:
+                                    msg = Utils.Colors.FAIL + "Return state '%d' used in block '%s' does not exist " \
+                                                              "in block '%s'" % (transition[1], transition[0],
+                                                                                 block.name) + Utils.Colors.FAIL
+                                    raise Exception(msg)
+                            else:
+                                msg = Utils.Colors.FAIL + "The initial state '%d' does not exist in the '%s' block" % (
+                                    next_block.initial_state, next_block.name) + Utils.Colors.ENDC
+                                raise Exception(msg)
+                        else:
+                            msg = Utils.Colors.FAIL + "Block '%s' does not exist" % (transition[0], ) + \
+                                  Utils.Colors.ENDC
+                            raise Exception(msg)
                     elif transition[0] == "*":
                         if transition[1] == "*":
                             self.__tape[self.__tape_index] = self.__tape[self.__tape_index]
