@@ -1,5 +1,5 @@
-from src.parser import Parser
-from src.utils import Utils
+from parser import Parser
+from utils import Utils
 
 
 class Machine(object):
@@ -141,7 +141,8 @@ class Machine(object):
                         if transition[0] in self.__code:
                             next_block = self.__code[transition[0]]
                             if next_block.initial_state in next_block.commands:
-                                if transition[1] in block.commands:
+                                if transition[1] in block.commands or transition[1] == "pare" or \
+                                        transition[1] == "retorne":
                                     # insere aquele bloco no topo da pilha junto com o estado de retorno
                                     self.__stack.append((next_block, transition[1]))
                                     self.__state = next_block.initial_state

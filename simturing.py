@@ -1,4 +1,4 @@
-from src.machine import Machine
+from machine import Machine
 import argparse
 import copy
 

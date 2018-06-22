@@ -1,6 +1,6 @@
-import pyparsing as pp
-from src.block import Block
-from src.utils import Utils
+import pyparsing as pp  # como instalar: pip install pyparsing
+from block import Block
+from utils import Utils
 
 
 class Parser(object):
