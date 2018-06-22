@@ -59,7 +59,7 @@ if __name__ == '__main__':
                 elif not machine.keep_run:
                     break
 
-            if machine.keep_run:
+            if machine.keep_run:  # se ainda tem que computar, pede pro usuario as opcoes
                 print("")
                 option = input("Forneça uma opção (-r, -v, -s): ")
                 if option == "-r" or option == "-resume":

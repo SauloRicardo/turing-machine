@@ -6,9 +6,11 @@ from src.utils import Utils
 class Parser(object):
 
     def __init__(self):
+        # definicao do dicionario com os blocos e o bloco atual
         self.__blocks = dict()
         self.__this_block = None
 
+        # criacao da gramatica para o pyparsing
         comment = pp.Literal(";") - pp.restOfLine
         comment.setDefaultWhitespaceChars(" \t")
         comment.callDuringTry = True
@@ -79,11 +81,13 @@ class Parser(object):
         self.__prog.callDuringTry = True
 
     def __create_new_block(self, toks):
+        # funcao para a criacao de um novo bloco
         new_block = Block(toks[0][1], int(toks[0][2]))
         self.__blocks[toks[0][1]] = new_block
         self.__this_block = new_block
 
     def __insert_transition(self, toks):
+        # funcao para a insercao de uma nova transicao no bloco atual
         value = (int(toks[0][0]))
 
         if toks[0][5].isdigit():
@@ -104,6 +108,7 @@ class Parser(object):
                 self.__this_block.commands[value].append(compute)
 
     def __insert_call_block(self, toks):
+        # funcao q insere uma chamada de bloco no atual
         value = (int(toks[0][0]))
 
         if toks[0][2].isdigit():
@@ -124,6 +129,7 @@ class Parser(object):
                 self.__this_block.commands[value].append(compute)
 
     def parse_file(self, file):
+        # funcao para o parsing do arquivo fonte
         try:
             self.__prog.parseFile(file)
 

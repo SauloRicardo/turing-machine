@@ -73,12 +73,13 @@ class Machine(object):
                 self.__tape.append('_')
 
     def step(self):
-        self.__add_tape()
+        self.__add_tape()  # funcao para adicionar elementos em branco no inicio e fim da fita caso esteja acabando
         char_head = self.__tape[self.__tape_index]
         this_state = self.__state
         block = self.__stack[-1][0]
         self.__stop_breakpoint = False
 
+        # caso a maquina nao acabou de executar faz
         if not self.__complete_compute:
             if this_state in block.commands:
                 possible_transitions = block.commands[this_state]
@@ -95,25 +96,27 @@ class Machine(object):
                 if transition_with_asterisk is not None:
                     transition_ok.append(transition_with_asterisk)
 
-                compute = False
+                compute = False  # variavel para controle de se fez uma operacao ou nao
 
-                for transition in transition_ok:
+                for transition in transition_ok:  # itera sobre as transicoes
                     if transition[-1]:
                         self.__stop_breakpoint = True
                     else:
                         self.__stop_breakpoint = False
 
-                    if transition[0] == char_head:
-                        if transition[1] == "*":
+                    if transition[0] == char_head:  # se for o caractere q esta no cabecote
+                        if transition[1] == "*":  # faz a escrita na fita
                             self.__tape[self.__tape_index] = self.__tape[self.__tape_index]
                         else:
                             self.__tape[self.__tape_index] = transition[1]
 
+                        # move o cabecote
                         if transition[2] == "e":
                             self.__tape_index -= 1
                         elif transition[2] == "d":
                             self.__tape_index += 1
 
+                        # troca o novo estado
                         if transition[3] == "*":
                             self.__state = self.__state
                         elif transition[3] == "pare":
@@ -130,15 +133,16 @@ class Machine(object):
                                 message = Utils.Colors.FAIL + "In the '%s' block there is no state '%d' used in the " \
                                                               "transition '%s'" % (block.name, this_state,
                                                                                    transition_str) + Utils.Colors.ENDC
-                                raise Exception(message)
+                                raise Exception(message)  # dispara uma excecao se o bloco nao tiver aquele estado
 
                         compute = True
                         break
-                    elif transition[0] in self.__code:
+                    elif transition[0] in self.__code:  # se for uma chamada de um bloco
                         if transition[0] in self.__code:
                             next_block = self.__code[transition[0]]
                             if next_block.initial_state in next_block.commands:
                                 if transition[1] in block.commands:
+                                    # insere aquele bloco no topo da pilha junto com o estado de retorno
                                     self.__stack.append((next_block, transition[1]))
                                     self.__state = next_block.initial_state
                                     compute = True
@@ -156,7 +160,7 @@ class Machine(object):
                             msg = Utils.Colors.FAIL + "Block '%s' does not exist" % (transition[0], ) + \
                                   Utils.Colors.ENDC
                             raise Exception(msg)
-                    elif transition[0] == "*":
+                    elif transition[0] == "*":  # caso a transicao for com o estado atual usando coringa
                         if transition[1] == "*":
                             self.__tape[self.__tape_index] = self.__tape[self.__tape_index]
                         else:
